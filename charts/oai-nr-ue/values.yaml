@@ -1,0 +1,81 @@
+# Default values for oai-nr-ue.
+
+replicaCount: 1
+
+image:
+  repository: oaisoftwarealliance/oai-nr-ue
+  tag: develop
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+
+securityContext:
+  privileged: false
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_NICE
+
+hostNetwork: false
+dnsPolicy: ClusterFirst
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+tunDevice:
+  enabled: true
+  hostPath: /dev/net/tun
+
+extraEnv: []
+extraVolumes: []
+extraVolumeMounts: []
+
+uicc:
+  imsi: "208990100001100"
+  key: fec86ba6eb707ed08905757b1bb44b8f
+  opc: C42449363BBAD02B66D16BC975D77CC1
+  dnn: oai
+  nssaiSst: 1
+
+radio:
+  prb: 106
+  numerology: 1
+  band: 78
+  frequency: "3319680000"
+
+rfsimulator:
+  enabled: true
+  serveraddr: gnb-oai-gnb
+
+additionalOptions:
+  - -E
+  - --rfsim
+  - --log_config.global_log_options
+  - level,nocolor,time
+
+channelmod:
+  enabled: true
+  maxChan: 10
+  modelNameGnb: rfsimu_channel_enB0
+  modelNameUe: rfsimu_channel_ue0
+  pathLossDb: 20
+  noisePowerDb: -4

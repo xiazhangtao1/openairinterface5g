@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "oai-gnb.fullname" . }}-config
+  labels:
+    {{- include "oai-gnb.labels" . | nindent 4 }}
+data:
+  gnb.yaml: |
+    Active_gNBs:
+      - {{ .Values.config.activeGnb | quote }}
+    Asn1_verbosity: {{ .Values.config.asn1Verbosity | quote }}
+    gNBs:
+      - gNB_ID: {{ .Values.config.gnbId }}
+        gNB_name: {{ .Values.config.gnbName | quote }}
+        tracking_area_code: {{ .Values.config.trackingAreaCode }}
+        plmn_list:
+          - mcc: {{ .Values.plmn.mcc | quote }}
+            mnc: {{ .Values.plmn.mnc | quote }}
+            mnc_length: {{ .Values.plmn.mncLength }}
+            snssaiList:
+              - sst: {{ .Values.plmn.sst }}
+                sd: {{ .Values.plmn.sd }}
+        nr_cellid: {{ .Values.config.nrCellId }}
+        min_rxtxtime: {{ .Values.config.minRxTxTime }}
+        servingCellConfigCommon:
+          - physCellId: {{ .Values.cell.physCellId }}
+            absoluteFrequencySSB: {{ .Values.cell.absoluteFrequencySsb }}
+            dl_absoluteFrequencyPointA: {{ .Values.cell.dlAbsoluteFrequencyPointA }}
+            dl_frequencyBand: {{ .Values.cell.dlFrequencyBand }}
+            dl_offstToCarrier: 0
+            dl_subcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            dl_carrierBandwidth: {{ .Values.cell.carrierBandwidth }}
+            initialDLBWPlocationAndBandwidth: {{ .Values.cell.initialBwpLocationAndBandwidth }}
+            initialDLBWPsubcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            initialDLBWPcontrolResourceSetZero: 11
+            initialDLBWPsearchSpaceZero: 0
+            ul_frequencyBand: {{ .Values.cell.ulFrequencyBand }}
+            ul_offstToCarrier: 0
+            ul_subcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            ul_carrierBandwidth: {{ .Values.cell.carrierBandwidth }}
+            pMax: 20
+            initialULBWPlocationAndBandwidth: {{ .Values.cell.initialBwpLocationAndBandwidth }}
+            initialULBWPsubcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            prach_ConfigurationIndex: 98
+            prach_msg1_FDM: 0
+            prach_msg1_FrequencyStart: 0
+            zeroCorrelationZoneConfig: 12
+            preambleReceivedTargetPower: -104
+            preambleTransMax: 6
+            powerRampingStep: 1
+            ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR: 4
+            ssb_perRACH_OccasionAndCB_PreamblesPerSSB: 15
+            ra_ContentionResolutionTimer: 7
+            rsrp_ThresholdSSB: 19
+            prach_RootSequenceIndex_PR: 2
+            prach_RootSequenceIndex: 1
+            msg1_SubcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            restrictedSetConfig: 0
+            msg3_DeltaPreamble: 1
+            p0_NominalWithGrant: -90
+            pucchGroupHopping: 0
+            hoppingId: 40
+            p0_nominal: -90
+            ssb_PositionsInBurst_Bitmap: 1
+            ssb_periodicityServingCell: 2
+            dmrs_TypeA_Position: 0
+            subcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            referenceSubcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
+            dl_UL_TransmissionPeriodicity: 6
+            nrofDownlinkSlots: 7
+            nrofDownlinkSymbols: 6
+            nrofUplinkSlots: 2
+            nrofUplinkSymbols: 4
+            ssPBCH_BlockPower: {{ .Values.cell.ssbBlockPower }}
+        SCTP:
+          SCTP_INSTREAMS: 2
+          SCTP_OUTSTREAMS: 2
+        amf_ip_address:
+          - ipv4: {{ .Values.amf.ip | quote }}
+        NETWORK_INTERFACES:
+          GNB_IPV4_ADDRESS_FOR_NG_AMF: {{ .Values.network.n2Address | quote }}
+          GNB_IPV4_ADDRESS_FOR_NGU: {{ .Values.network.n3Address | quote }}
+          GNB_PORT_FOR_S1U: {{ .Values.network.nguPort }}
+    MACRLCs:
+      - num_cc: 1
+        tr_s_preference: local_L1
+        tr_n_preference: local_RRC
+        pusch_TargetSNRx10: 200
+        pucch_TargetSNRx10: 200
+        stats_max_ue: 17
+    L1s:
+      - num_cc: 1
+        tr_n_preference: local_mac
+        prach_dtx_threshold: 200
+    RUs:
+      - local_rf: yes
+        nb_tx: {{ .Values.ru.nbTx }}
+        nb_rx: {{ .Values.ru.nbRx }}
+        att_tx: {{ .Values.ru.attTx }}
+        att_rx: {{ .Values.ru.attRx }}
+        bands:
+          - {{ .Values.cell.dlFrequencyBand }}
+        max_pdschReferenceSignalPower: {{ .Values.ru.maxPdschReferenceSignalPower }}
+        max_rxgain: {{ .Values.ru.maxRxgain }}
+        eNB_instances:
+          - 0
+        sf_extension: 0
+        sdr_addrs: {{ .Values.ru.sdrAddrs | quote }}
+    rfsimulator:
+      serveraddr: {{ .Values.rfsimulator.serveraddr | quote }}
+    security:
+      ciphering_algorithms:
+        {{- toYaml .Values.security.cipheringAlgorithms | nindent 8 }}
+      integrity_algorithms:
+        {{- toYaml .Values.security.integrityAlgorithms | nindent 8 }}
+      drb_ciphering: {{ ternary "yes" "no" .Values.security.drbCiphering | quote }}
+      drb_integrity: {{ ternary "yes" "no" .Values.security.drbIntegrity | quote }}
+    log_config:
+      global_log_level: {{ .Values.log.global | quote }}
+      hw_log_level: {{ .Values.log.hw | quote }}
+      phy_log_level: {{ .Values.log.phy | quote }}
+      mac_log_level: {{ .Values.log.mac | quote }}
+      rlc_log_level: {{ .Values.log.rlc | quote }}
+      pdcp_log_level: {{ .Values.log.pdcp | quote }}
+      rrc_log_level: {{ .Values.log.rrc | quote }}
+      ngap_log_level: {{ .Values.log.ngap | quote }}
+      f1ap_log_level: {{ .Values.log.f1ap | quote }}

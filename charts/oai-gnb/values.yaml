@@ -1,0 +1,131 @@
+# Default values for oai-gnb.
+
+replicaCount: 1
+
+image:
+  repository: oaisoftwarealliance/oai-gnb
+  tag: develop
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+
+securityContext:
+  privileged: false
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - SYS_NICE
+
+service:
+  enabled: true
+  type: ClusterIP
+  annotations: {}
+  rfsim:
+    port: 4043
+    protocol: TCP
+  ngu:
+    port: 2152
+    protocol: UDP
+
+hostNetwork: false
+dnsPolicy: ClusterFirst
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+extraEnv: []
+extraVolumes: []
+extraVolumeMounts: []
+
+config:
+  activeGnb: gnb-rfsim
+  asn1Verbosity: none
+  gnbId: "0xe00"
+  gnbName: gnb-rfsim
+  trackingAreaCode: 1
+  nrCellId: "12345678"
+  minRxTxTime: 6
+
+plmn:
+  mcc: "208"
+  mnc: "99"
+  mncLength: 2
+  sst: 1
+  sd: "0xffffff"
+
+cell:
+  physCellId: 0
+  absoluteFrequencySsb: 621312
+  dlAbsoluteFrequencyPointA: 620040
+  dlFrequencyBand: 78
+  ulFrequencyBand: 78
+  subcarrierSpacing: 1
+  carrierBandwidth: 106
+  initialBwpLocationAndBandwidth: 28875
+  ssbBlockPower: -25
+
+amf:
+  ip: 192.168.71.132
+
+network:
+  # Must be reachable from AMF/UPF. For cross-node or cross-cluster deployments,
+  # set this to a Multus static IP, hostNetwork node IP, or routable LoadBalancer IP.
+  n2Address: 192.168.71.140
+  n3Address: 192.168.71.140
+  nguPort: 2152
+
+rfsimulator:
+  enabled: true
+  serveraddr: server
+
+ru:
+  nbTx: 1
+  nbRx: 1
+  attTx: 0
+  attRx: 0
+  maxPdschReferenceSignalPower: -27
+  maxRxgain: 75
+  sdrAddrs: serial=XXXXXXX
+
+security:
+  cipheringAlgorithms:
+    - nea0
+  integrityAlgorithms:
+    - nia2
+    - nia0
+  drbCiphering: true
+  drbIntegrity: false
+
+log:
+  global: info
+  hw: info
+  phy: info
+  mac: info
+  rlc: info
+  pdcp: info
+  rrc: info
+  ngap: debug
+  f1ap: debug
+
+additionalOptions:
+  - -E
+  - --rfsim
+  - --log_config.global_log_options
+  - level,nocolor,time

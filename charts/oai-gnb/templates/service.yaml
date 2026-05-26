@@ -1,0 +1,25 @@
+{{- if .Values.service.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "oai-gnb.fullname" . }}
+  labels:
+    {{- include "oai-gnb.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "oai-gnb.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: rfsim
+      port: {{ .Values.service.rfsim.port }}
+      targetPort: rfsim
+      protocol: {{ .Values.service.rfsim.protocol }}
+    - name: ngu
+      port: {{ .Values.service.ngu.port }}
+      targetPort: ngu
+      protocol: {{ .Values.service.ngu.protocol }}
+{{- end }}

@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "oai-gnb.fullname" . }}
+  labels:
+    {{- include "oai-gnb.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "oai-gnb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "oai-gnb.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "oai-gnb.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      hostNetwork: {{ .Values.hostNetwork }}
+      dnsPolicy: {{ ternary "ClusterFirstWithHostNet" .Values.dnsPolicy .Values.hostNetwork }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: gnb
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: ASAN_OPTIONS
+              value: detect_leaks=0
+            - name: USE_ADDITIONAL_OPTIONS
+              value: {{ include "oai-gnb.additionalOptions" . | quote }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: rfsim
+              containerPort: {{ .Values.service.rfsim.port }}
+              protocol: {{ .Values.service.rfsim.protocol }}
+            - name: ngu
+              containerPort: {{ .Values.service.ngu.port }}
+              protocol: {{ .Values.service.ngu.protocol }}
+          volumeMounts:
+            - name: config
+              mountPath: /opt/oai-gnb/etc/gnb.yaml
+              subPath: gnb.yaml
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - pgrep nr-softmodem
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - pgrep nr-softmodem
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "oai-gnb.fullname" . }}-config
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
