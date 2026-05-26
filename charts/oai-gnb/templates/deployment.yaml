@@ -37,6 +37,10 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: ASAN_OPTIONS
               value: detect_leaks=0
             - name: USE_ADDITIONAL_OPTIONS
@@ -53,11 +57,20 @@ spec:
               protocol: {{ .Values.service.ngu.protocol }}
           volumeMounts:
             - name: config
-              mountPath: /opt/oai-gnb/etc/gnb.yaml
+              mountPath: /config/gnb.yaml
               subPath: gnb.yaml
+            - name: runtime-config
+              mountPath: /opt/oai-gnb/etc
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          command:
+            - /bin/bash
+            - -ec
+          args:
+            - |
+              sed "s/__POD_IP__/${POD_IP}/g" /config/gnb.yaml > /opt/oai-gnb/etc/gnb.yaml
+              exec /opt/oai-gnb/bin/entrypoint.sh /opt/oai-gnb/bin/nr-softmodem
           livenessProbe:
             exec:
               command:
@@ -82,6 +95,8 @@ spec:
         - name: config
           configMap:
             name: {{ include "oai-gnb.fullname" . }}-config
+        - name: runtime-config
+          emptyDir: {}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

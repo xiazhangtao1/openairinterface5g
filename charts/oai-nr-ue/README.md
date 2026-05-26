@@ -3,8 +3,10 @@
 This chart deploys the OpenAirInterface nrUE container. The default values target
 the RFsimulator scenario used by `ci-scripts/yaml_files/5g_rfsimulator`.
 
-The nrUE requires `/dev/net/tun`, `NET_ADMIN`, `NET_RAW`, and `SYS_NICE` to
-create `oaitun_ue1`, run ping, and keep the modem scheduler usable.
+The nrUE requires `/dev/net/tun`, `NET_ADMIN`, and `NET_RAW` to create
+`oaitun_ue1` and run ping or traffic tests through the UE tunnel. Some clusters
+may still require `securityContext.privileged=true` for the OAI runtime; validate
+this in the target environment before relaxing the security context.
 
 This first version targets one RFsim gNB and one RFsim nrUE only.
 

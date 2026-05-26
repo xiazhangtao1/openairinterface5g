@@ -10,11 +10,16 @@ with a routable address. The N2 address must be reachable by the AMF over SCTP
 
 This first version targets one RFsim gNB and one RFsim nrUE only.
 
+By default, `network.n2Address` and `network.n3Address` are rendered from the
+gNB Pod IP at container start.
+
+The gNB runs privileged by default because OAI creates real-time and RFsim
+worker threads during startup. In constrained clusters this can be relaxed only
+after validating thread creation and scheduling behavior.
+
 Example:
 
 ```bash
 helm install gnb charts/oai-gnb \
-  --set amf.ip=192.168.71.132 \
-  --set network.n2Address=192.168.71.140 \
-  --set network.n3Address=192.168.71.140
+  --set amf.ip=192.168.71.132
 ```

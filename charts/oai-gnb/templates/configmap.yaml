@@ -32,8 +32,8 @@ data:
             dl_carrierBandwidth: {{ .Values.cell.carrierBandwidth }}
             initialDLBWPlocationAndBandwidth: {{ .Values.cell.initialBwpLocationAndBandwidth }}
             initialDLBWPsubcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
-            initialDLBWPcontrolResourceSetZero: 11
-            initialDLBWPsearchSpaceZero: 0
+            initialDLBWPcontrolResourceSetZero: {{ .Values.cell.initialDlBwpControlResourceSetZero }}
+            initialDLBWPsearchSpaceZero: {{ .Values.cell.initialDlBwpSearchSpaceZero }}
             ul_frequencyBand: {{ .Values.cell.ulFrequencyBand }}
             ul_offstToCarrier: 0
             ul_subcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
@@ -44,12 +44,12 @@ data:
             prach_ConfigurationIndex: 98
             prach_msg1_FDM: 0
             prach_msg1_FrequencyStart: 0
-            zeroCorrelationZoneConfig: 12
-            preambleReceivedTargetPower: -104
+            zeroCorrelationZoneConfig: {{ .Values.cell.prachZeroCorrelationZoneConfig }}
+            preambleReceivedTargetPower: {{ .Values.cell.preambleReceivedTargetPower }}
             preambleTransMax: 6
             powerRampingStep: 1
             ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR: 4
-            ssb_perRACH_OccasionAndCB_PreamblesPerSSB: 15
+            ssb_perRACH_OccasionAndCB_PreamblesPerSSB: {{ .Values.cell.ssbPerRachOccasionAndCbPreamblesPerSsb }}
             ra_ContentionResolutionTimer: 7
             rsrp_ThresholdSSB: 19
             prach_RootSequenceIndex_PR: 2

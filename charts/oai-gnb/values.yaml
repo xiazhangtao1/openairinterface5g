@@ -24,12 +24,10 @@ podSecurityContext:
   runAsGroup: 0
 
 securityContext:
-  privileged: false
+  privileged: true
   capabilities:
     drop:
       - ALL
-    add:
-      - SYS_NICE
 
 service:
   enabled: true
@@ -79,16 +77,21 @@ cell:
   subcarrierSpacing: 1
   carrierBandwidth: 106
   initialBwpLocationAndBandwidth: 28875
+  initialDlBwpControlResourceSetZero: 11
+  initialDlBwpSearchSpaceZero: 0
+  prachZeroCorrelationZoneConfig: 12
+  preambleReceivedTargetPower: -104
+  ssbPerRachOccasionAndCbPreamblesPerSsb: 15
   ssbBlockPower: -25
 
 amf:
   ip: 192.168.71.132
 
 network:
-  # Must be reachable from AMF/UPF. For cross-node or cross-cluster deployments,
-  # set this to a Multus static IP, hostNetwork node IP, or routable LoadBalancer IP.
-  n2Address: 192.168.71.140
-  n3Address: 192.168.71.140
+  # "__POD_IP__" is replaced at container start with status.podIP. Override it
+  # for deployments that need to advertise another routable N2/N3 address.
+  n2Address: __POD_IP__
+  n3Address: __POD_IP__
   nguPort: 2152
 
 rfsimulator:
