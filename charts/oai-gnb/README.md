@@ -21,5 +21,11 @@ Example:
 
 ```bash
 helm install gnb charts/oai-gnb \
-  --set amf.ip=192.168.71.132
+  --set amf.ip=10.96.125.66 \
+  --set plmn.mnc=93 \
+  --set plmn.sd=0x010203
 ```
+
+When the AMF runs in the same Kubernetes cluster, use the AMF N2 service
+ClusterIP for `amf.ip`. For the free5GC chart used in this environment, the AMF
+supports PLMN `208/93`, TAC `000001`, and S-NSSAI `sst=1, sd=010203`.

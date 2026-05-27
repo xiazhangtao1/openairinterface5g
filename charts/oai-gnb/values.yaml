@@ -79,9 +79,11 @@ cell:
   initialBwpLocationAndBandwidth: 28875
   initialDlBwpControlResourceSetZero: 11
   initialDlBwpSearchSpaceZero: 0
+  prachMsg1Fdm: 1
   prachZeroCorrelationZoneConfig: 12
   preambleReceivedTargetPower: -104
   ssbPerRachOccasionAndCbPreamblesPerSsb: 15
+  ssbPositionsInBurstBitmap: 2
   ssbBlockPower: -25
 
 amf:

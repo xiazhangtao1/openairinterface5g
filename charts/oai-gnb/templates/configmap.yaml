@@ -42,7 +42,7 @@ data:
             initialULBWPlocationAndBandwidth: {{ .Values.cell.initialBwpLocationAndBandwidth }}
             initialULBWPsubcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
             prach_ConfigurationIndex: 98
-            prach_msg1_FDM: 0
+            prach_msg1_FDM: {{ .Values.cell.prachMsg1Fdm }}
             prach_msg1_FrequencyStart: 0
             zeroCorrelationZoneConfig: {{ .Values.cell.prachZeroCorrelationZoneConfig }}
             preambleReceivedTargetPower: {{ .Values.cell.preambleReceivedTargetPower }}
@@ -61,7 +61,7 @@ data:
             pucchGroupHopping: 0
             hoppingId: 40
             p0_nominal: -90
-            ssb_PositionsInBurst_Bitmap: 1
+            ssb_PositionsInBurst_Bitmap: {{ .Values.cell.ssbPositionsInBurstBitmap }}
             ssb_periodicityServingCell: 2
             dmrs_TypeA_Position: 0
             subcarrierSpacing: {{ .Values.cell.subcarrierSpacing }}
@@ -107,7 +107,7 @@ data:
         sf_extension: 0
         sdr_addrs: {{ .Values.ru.sdrAddrs | quote }}
     rfsimulator:
-      serveraddr: {{ .Values.rfsimulator.serveraddr | quote }}
+      - serveraddr: {{ .Values.rfsimulator.serveraddr | quote }}
     security:
       ciphering_algorithms:
         {{- toYaml .Values.security.cipheringAlgorithms | nindent 8 }}
