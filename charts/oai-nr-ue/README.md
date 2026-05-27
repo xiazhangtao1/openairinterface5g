@@ -18,9 +18,11 @@ Example:
 ```bash
 helm install nrue charts/oai-nr-ue \
   --set rfsimulator.serveraddr=gnb-oai-gnb \
-  --set uicc.imsi=208930100001100 \
-  --set uicc.dnn=internet \
-  --set uicc.nssaiSd=0x010203
+  --set-string uicc.imsi=460110000000100 \
+  --set-string uicc.key=12345600000000000000000000000000 \
+  --set-string uicc.opc=12345600000000000000000000000000 \
+  --set uicc.dnn=cmnet \
+  --set-string uicc.nssaiSd=0x010101
 ```
 
 After registration, validate the user plane from the nrUE pod:

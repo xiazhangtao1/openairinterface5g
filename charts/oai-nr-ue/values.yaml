@@ -49,12 +49,12 @@ extraVolumes: []
 extraVolumeMounts: []
 
 uicc:
-  imsi: "208930100001100"
-  key: fec86ba6eb707ed08905757b1bb44b8f
-  opc: C42449363BBAD02B66D16BC975D77CC1
-  dnn: internet
+  imsi: "460110000000100"
+  key: "12345600000000000000000000000000"
+  opc: "12345600000000000000000000000000"
+  dnn: cmnet
   nssaiSst: 1
-  nssaiSd: "0x010203"
+  nssaiSd: "0x010101"
 
 radio:
   prb: 106

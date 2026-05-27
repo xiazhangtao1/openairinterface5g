@@ -22,10 +22,13 @@ Example:
 ```bash
 helm install gnb charts/oai-gnb \
   --set amf.ip=10.96.125.66 \
-  --set plmn.mnc=93 \
-  --set plmn.sd=0x010203
+  --set-string plmn.mcc=460 \
+  --set-string plmn.mnc=11 \
+  --set-string plmn.sd=0x010101
 ```
 
 When the AMF runs in the same Kubernetes cluster, use the AMF N2 service
-ClusterIP for `amf.ip`. For the free5GC chart used in this environment, the AMF
-supports PLMN `208/93`, TAC `000001`, and S-NSSAI `sst=1, sd=010203`.
+ClusterIP for `amf.ip`. The AMF served GUAMI, supported TAI, SMF PLMN, SMF
+S-NSSAI, UPF DNN list, WebUI subscriber, gNB PLMN, and nrUE UICC values must all
+use the same PLMN/DNN/S-NSSAI. The default OAI values use PLMN `460/11`, TAC
+`000001`, DNN `cmnet`, and S-NSSAI `sst=1, sd=010101`.

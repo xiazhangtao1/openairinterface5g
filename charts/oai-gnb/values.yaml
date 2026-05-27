@@ -62,11 +62,11 @@ config:
   minRxTxTime: 6
 
 plmn:
-  mcc: "208"
-  mnc: "99"
+  mcc: "460"
+  mnc: "11"
   mncLength: 2
   sst: 1
-  sd: "0xffffff"
+  sd: "0x010101"
 
 cell:
   physCellId: 0
