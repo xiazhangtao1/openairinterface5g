@@ -75,7 +75,7 @@ Render command-line options as a shell-safe space-delimited string.
 {{- $options = append $options (toString .Values.radio.band) -}}
 {{- $options = append $options "-C" -}}
 {{- $options = append $options (toString .Values.radio.frequency) -}}
-{{- $options = append $options "--rfsimulator.serveraddr" -}}
+{{- $options = append $options "--rfsimulator.[0].serveraddr" -}}
 {{- $options = append $options (toString .Values.rfsimulator.serveraddr) -}}
 {{- range $index, $option := $options -}}{{ if $index }} {{ end }}{{ $option }}{{- end -}}
 {{- end -}}

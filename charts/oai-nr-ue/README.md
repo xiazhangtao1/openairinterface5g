@@ -8,6 +8,9 @@ The nrUE requires `/dev/net/tun`, `NET_ADMIN`, and `NET_RAW` to create
 may still require `securityContext.privileged=true` for the OAI runtime; validate
 this in the target environment before relaxing the security context.
 
+The default values keep the nrUE container privileged because this RFsim runtime
+creates real-time worker threads and locks memory during startup.
+
 This first version targets one RFsim gNB and one RFsim nrUE only.
 
 Example:
@@ -15,7 +18,9 @@ Example:
 ```bash
 helm install nrue charts/oai-nr-ue \
   --set rfsimulator.serveraddr=gnb-oai-gnb \
-  --set uicc.imsi=208990100001100
+  --set uicc.imsi=208930100001100 \
+  --set uicc.dnn=internet \
+  --set uicc.nssaiSd=0x010203
 ```
 
 After registration, validate the user plane from the nrUE pod:
