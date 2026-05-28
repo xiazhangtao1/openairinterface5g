@@ -22,6 +22,7 @@ Example:
 ```bash
 helm install gnb charts/oai-gnb \
   --set amf.ip=10.96.125.66 \
+  --set config.trackingAreaCode=1 \
   --set-string plmn.mcc=460 \
   --set-string plmn.mnc=11 \
   --set-string plmn.sd=0x010101
@@ -31,4 +32,9 @@ When the AMF runs in the same Kubernetes cluster, use the AMF N2 service
 ClusterIP for `amf.ip`. The AMF served GUAMI, supported TAI, SMF PLMN, SMF
 S-NSSAI, UPF DNN list, WebUI subscriber, gNB PLMN, and nrUE UICC values must all
 use the same PLMN/DNN/S-NSSAI. The default OAI values use PLMN `460/11`, TAC
-`000001`, DNN `cmnet`, and S-NSSAI `sst=1, sd=010101`.
+`000001`, DNN `cmnet`, and S-NSSAI `sst=1, sd=010101`. The nrUE does not set a
+TAC; it reads TAI from the gNB broadcast.
+
+The OAI gNB runtime rejects TAC `0`; `tracking_area_code` must be in the range
+`1..65533`. If the AMF logs `Cannot find Served TAI`, configure the AMF
+`supportTaiList` TAC to match the gNB value, for example `000001`.
