@@ -3,8 +3,8 @@
 replicaCount: 1
 
 image:
-  repository: oaisoftwarealliance/oai-gnb
-  tag: develop
+  repository: localhost/oai-gnb
+  tag: dedbearer-fix
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
