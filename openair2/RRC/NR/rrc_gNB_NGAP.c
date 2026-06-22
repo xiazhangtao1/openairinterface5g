@@ -1014,46 +1014,55 @@ static void nr_rrc_send_e1_after_qos_update(gNB_RRC_UE_t *UE,
   pdusession_t *dst = &pduSession->param;
   // Find or create PDU session entry in e1_req
   pdu_session_to_mod_t *pdu_mod = find_or_add_pdu_session_mod(e1_req, dst->pdusession_id);
+  int drbs_to_remove[MAX_DRBS_PER_UE] = {0};
+  int n_drbs_to_remove = 0;
 
   // Check if any remaining QoS for this PDU session still references the same DRB
   FOR_EACH_SEQ_ARR (drb_t *, drb, &UE->drbs) {
     if (drb->pdusession_id != dst->pdusession_id)
       continue;
+    const int drb_id = drb->drb_id;
     bool drb_still_used = false;
     FOR_EACH_SEQ_ARR (nr_rrc_qos_t *, qos, &dst->qos) {
-      if (qos->drb_id == drb->drb_id) {
+      if (qos->drb_id == drb_id) {
         drb_still_used = true;
         break;
       }
     }
     if (!drb_still_used) {
-      if (nr_rrc_remove_drb_by_id(&UE->drbs, drb->drb_id)) {
-        LOG_I(NR_RRC,
-              "UE %d: removed DRB ID %d for PDU session %d (no remaining QoS flows mapped)\n",
-              UE->rrc_ue_id,
-              drb->drb_id,
-              dst->pdusession_id);
-      }
       // Add DRB to remove directly to e1_req
       DevAssert(pdu_mod->n_drb_to_remove < E1AP_MAX_NUM_DRBS);
       drb_to_remove_t *rem = &pdu_mod->drbs_to_remove[pdu_mod->n_drb_to_remove++];
-      rem->id = drb->drb_id;
+      rem->id = drb_id;
+      DevAssert(n_drbs_to_remove < MAX_DRBS_PER_UE);
+      drbs_to_remove[n_drbs_to_remove++] = drb_id;
       continue;
     }
 
     /** For changed DRBs that are still used, refresh Flow Mapping Information in DRB-To-Modify
      * 3GPP TS 38.463 9.3.3.11: overrides previous mapping information. */
-    if (drb_needs_e1_refresh[drb->drb_id]) {
+    if (drb_needs_e1_refresh[drb_id]) {
       bool found = false;
       for (int j = 0; j < pdu_mod->numDRB2Modify; ++j) {
-        if (pdu_mod->DRBnGRanModList[j].id != drb->drb_id)
+        if (pdu_mod->DRBnGRanModList[j].id != drb_id)
           continue;
-        nr_rrc_override_flow_mapping_info(&pdu_mod->DRBnGRanModList[j], drb->drb_id, dst);
+        nr_rrc_override_flow_mapping_info(&pdu_mod->DRBnGRanModList[j], drb_id, dst);
         found = true;
         break;
       }
       if (!found)
-        find_or_add_e1_drb_mod(pdu_mod, drb->drb_id, dst);
+        find_or_add_e1_drb_mod(pdu_mod, drb_id, dst);
+    }
+  }
+
+  for (int i = 0; i < n_drbs_to_remove; ++i) {
+    const int drb_id = drbs_to_remove[i];
+    if (nr_rrc_remove_drb_by_id(&UE->drbs, drb_id)) {
+      LOG_I(NR_RRC,
+            "UE %d: removed DRB ID %d for PDU session %d (no remaining QoS flows mapped)\n",
+            UE->rrc_ue_id,
+            drb_id,
+            dst->pdusession_id);
     }
   }
 }
