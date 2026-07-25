@@ -248,15 +248,54 @@ bool tap_config(const char* ifname)
   return success;
 }
 
-void setup_ue_ipv4_route(const char* ifname, int instance_id, const char *ipv4)
+enum {
+  UE_ROUTE_TABLE_BASE = 10000,
+  UE_ROUTE_TABLE_SESSION_STRIDE = NR_MAX_NB_PDU_SESSIONS + 1,
+};
+
+static int get_ue_route_table_id(int instance_id, int pdu_session_id)
 {
-  int table_id = instance_id - 1 + 10000;
+  DevAssert(instance_id >= 0);
+  DevAssert(pdu_session_id >= -1 && pdu_session_id <= NR_MAX_NB_PDU_SESSIONS);
+
+  if (pdu_session_id < 0)
+    return instance_id - 1 + UE_ROUTE_TABLE_BASE;
+
+  return UE_ROUTE_TABLE_BASE + instance_id * UE_ROUTE_TABLE_SESSION_STRIDE + pdu_session_id;
+}
+
+void cleanup_ue_ipv4_route(int instance_id, int pdu_session_id)
+{
+  const int table_id = get_ue_route_table_id(instance_id, pdu_session_id);
+  char command_line[256];
+  int res = snprintf(command_line,
+                     sizeof(command_line),
+                     "while ip rule del table %d 2>/dev/null; do :; done; "
+                     "ip route flush table %d 2>/dev/null || true",
+                     table_id,
+                     table_id);
+
+  if (res < 0 || (size_t)res >= sizeof(command_line)) {
+    LOG_E(UTIL, "Could not create IPv4 route cleanup command\n");
+    return;
+  }
+
+  if (background_system(command_line) != 0)
+    LOG_W(UTIL, "Could not fully clean IPv4 policy route table %d\n", table_id);
+}
+
+void setup_ue_ipv4_route(const char *ifname, int instance_id, int pdu_session_id, const char *ipv4)
+{
+  const int table_id = get_ue_route_table_id(instance_id, pdu_session_id);
+
+  cleanup_ue_ipv4_route(instance_id, pdu_session_id);
 
   char command_line[500];
-  int res = sprintf(command_line,
+  int res = snprintf(command_line,
+                    sizeof(command_line),
                     "ip rule add from %s/32 table %d && "
                     "ip rule add to %s/32 table %d && "
-                    "ip route add default dev %s table %d",
+                    "ip route replace default dev %s table %d",
                     ipv4,
                     table_id,
                     ipv4,
@@ -264,11 +303,12 @@ void setup_ue_ipv4_route(const char* ifname, int instance_id, const char *ipv4)
                     ifname,
                     table_id);
 
-  if (res < 0) {
+  if (res < 0 || (size_t)res >= sizeof(command_line)) {
     LOG_E(UTIL, "Could not create ip rule/route commands string\n");
     return;
   }
-  background_system(command_line);
+  if (background_system(command_line) != 0)
+    LOG_E(UTIL, "Could not configure IPv4 policy route table %d for %s\n", table_id, ifname);
 }
 
 int tun_generate_ifname(char *ifname, const char *ifprefix, int instance_id)

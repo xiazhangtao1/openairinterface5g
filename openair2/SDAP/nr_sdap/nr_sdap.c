@@ -169,7 +169,7 @@ void create_ue_ip_if(const char *ipv4, const char *ipv6, int ue_id, int pdu_sess
   const int sock = tuntap_alloc(IFF_TUN, ifname);
   tun_config(ifname, ipv4, ipv6);
   if (ipv4) {
-    setup_ue_ipv4_route(ifname, ue_id, ipv4);
+    setup_ue_ipv4_route(ifname, ue_id, pdu_session_id, ipv4);
   }
   start_sdap_tun_ue(ue_id, pdu_session_id, sock, ifname); // interface name suffix is ue_id+1
 }
@@ -196,6 +196,8 @@ void remove_ip_if(nr_sdap_entity_t *entity)
 
   int ret = pthread_join(entity->pdusession_thread, NULL);
   AssertFatal(ret == 0, "pthread_join() failed, errno: %d, %s\n", errno, strerror(errno));
+  if (!entity->is_gnb)
+    cleanup_ue_ipv4_route(entity->ue_id, entity->pdusession_id);
   // Bring down the IP interface
   tuntap_destroy(entity->pdusession_if_name);
   free(entity->pdusession_if_name);

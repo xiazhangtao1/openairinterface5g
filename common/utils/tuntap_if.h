@@ -65,16 +65,25 @@ bool tun_config(const char* ifname, const char *ipv4, const char *ipv6);
 bool tap_config(const char* ifname);
 
 /*!
- * \brief Setup a IPv4 rule in table (interface_id - 1 + 10000) and route to
+ * \brief Setup IPv4 policy rules and a route in a table unique to the UE and
+ * PDU session. A negative PDU session ID keeps the legacy per-UE table.
  * force packets coming into interface back through it, and workaround
  * net.ipv4.conf.all.rp_filter=2 (strict source filtering would filter out
  * responses of packets going out through interface to another IP address not
  * in same subnet).
  * \param[in] ifname name of the interface
  * \param[in] instance_id unique instance number, used to create the table
+ * \param[in] pdu_session_id PDU session ID, or -1 for the legacy per-UE table
  * \param[in] ipv4 IPv4 address of the UE
  */
-void setup_ue_ipv4_route(const char* ifname, int instance_id, const char *ipv4);
+void setup_ue_ipv4_route(const char *ifname, int instance_id, int pdu_session_id, const char *ipv4);
+
+/**
+ * \brief Remove all IPv4 policy rules and routes for a UE PDU session.
+ * \param[in] instance_id unique UE instance number
+ * \param[in] pdu_session_id PDU session ID, or -1 for the legacy per-UE table
+ */
+void cleanup_ue_ipv4_route(int instance_id, int pdu_session_id);
 
 /*!
  * \brief This function allocates a TUN or TAP interface
